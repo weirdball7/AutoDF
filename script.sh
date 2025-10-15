@@ -46,10 +46,13 @@ function GETFILE()
         echo "Directory $OUT_DIR_NAME already exists in $OUT_DIR_PATH."
     else
         mkdir "$OUT_DIR_NAME"
+        echo "Directory Created..."
     fi
 
     mv "$MEM_DUMP" "$OUT_DIR_PATH/$OUT_DIR_NAME"
     cd "$OUT_DIR_PATH/$OUT_DIR_NAME"
+    pwd 
+    
 }
 
 
