@@ -5,8 +5,8 @@ HOME=$(pwd)
 MEM_DUMP=''
 OUT_DIR_NAME=''
 OUT_DIR_PATH=''
-# Check the current user exit if not root 
 
+# Check the current user exit if not root 
 function CHECKROOT()
 {
     USER=$(whoami)
@@ -55,6 +55,7 @@ function GETFILE()
     
 }
 
+#  Create a function to install the forensics tools if missing.
 function GETTOOLS()
 {
     if ! command -v binwalk; then
@@ -80,8 +81,9 @@ function GETTOOLS()
         sleep 1
         sudo apt install strings -y
     fi
-
     # TODO: Add Volatility installation
+    #! ASK BEN ABOUT INSTALLATION PROCCESS  
+
     
     figlet "ALL NEEDED TOOLS INSTALLED!"
 
@@ -89,7 +91,7 @@ function GETTOOLS()
 
 
 CHECKROOT
-#  Create a function to install the forensics tools if missing.
+
 
 # Use different carvers to automatically extract data.
 
