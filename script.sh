@@ -25,7 +25,6 @@ function CHECKROOT()
 # Allow the user to specify the filename; check if the file exists
 function GETFILE()
 {
-
     echo "Please provide *FULL PATH* of memory dump file."
     read MEM_DUMP 
 
@@ -52,7 +51,40 @@ function GETFILE()
     mv "$MEM_DUMP" "$OUT_DIR_PATH/$OUT_DIR_NAME"
     cd "$OUT_DIR_PATH/$OUT_DIR_NAME"
     pwd 
+    GETTOOLS
     
+}
+
+function GETTOOLS()
+{
+    if ! command -v binwalk; then
+        echo "Binwalk not found...Installing...."
+        sleep 1
+        sudo apt install binwalk -y
+    fi
+
+    if ! command -v bulk_extractor; then
+        echo "Bulk_extractor not found...Installing...."
+        sleep 1
+        sudo apt install bulk_extractor -y
+    fi
+
+    if ! command -v foremost; then
+        echo "foremost not found...Installing...."
+        sleep 1
+        sudo apt install foremost -y
+    fi
+
+    if ! command -v strings; then
+        echo "strings not found...Installing...."
+        sleep 1
+        sudo apt install strings -y
+    fi
+
+    # TODO: Add Volatility installation
+    
+    figlet "ALL NEEDED TOOLS INSTALLED!"
+
 }
 
 
