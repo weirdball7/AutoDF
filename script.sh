@@ -5,7 +5,6 @@ HOME=$(pwd)
 MEM_DUMP=''
 OUT_DIR_NAME=''
 OUT_DIR_PATH=''
-
 # Check the current user exit if not root 
 function CHECKROOT()
 {
@@ -69,14 +68,14 @@ function GETTOOLS()
         sleep 1
     fi
 
-    echo "Checking if bulk_extractor is installed..."
+    echo "Checking if bulk-extractor is installed..."
     sleep 1
-    if ! command -v bulk_extractor; then
+    if ! command -v bulk-extractor; then
         echo "Bulk_extractor not found...Installing...."
-        sudo apt install bulk_extractor -y
+        sudo apt install bulk-extractor -y
         sleep 1
     else 
-        echo "bulk_extractor is installed.. continuing"
+        echo "bulk-extractor is installed.. continuing"
         sleep 1
     fi
 
