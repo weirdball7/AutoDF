@@ -58,27 +58,47 @@ function GETFILE()
 #  Create a function to install the forensics tools if missing.
 function GETTOOLS()
 {
+    echo "Checking if binwalk is installed..."
+    sleep 1
     if ! command -v binwalk; then
         echo "Binwalk not found...Installing...."
         sudo apt install binwalk -y
         sleep 1
+    else 
+        echo "binwalk is installed.. continuing..."
+        sleep 1
     fi
 
+    echo "Checking if bulk_extractor is installed..."
+    sleep 1
     if ! command -v bulk_extractor; then
         echo "Bulk_extractor not found...Installing...."
         sudo apt install bulk_extractor -y
         sleep 1
+    else 
+        echo "bulk_extractor is installed.. continuing"
+        sleep 1
     fi
 
+    echo "Checking if foremost is installed..."
+    sleep 1
     if ! command -v foremost; then
         echo "foremost not found...Installing...."
         sudo apt install foremost -y
         sleep 1
+    else 
+        echo "foremost is installed.. continuing"
+        sleep 1
     fi
 
+    echo "Checking if strings installed..."
+    sleep 1
     if ! command -v strings; then
         echo "strings not found...Installing...."
         sudo apt install strings -y
+        sleep 1
+    else 
+        echo "strings is installed.. continuing"
         sleep 1
     fi
     # TODO: Add Volatility installation
