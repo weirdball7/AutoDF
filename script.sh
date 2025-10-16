@@ -60,26 +60,26 @@ function GETTOOLS()
 {
     if ! command -v binwalk; then
         echo "Binwalk not found...Installing...."
-        sleep 1
         sudo apt install binwalk -y
+        sleep 1
     fi
 
     if ! command -v bulk_extractor; then
         echo "Bulk_extractor not found...Installing...."
-        sleep 1
         sudo apt install bulk_extractor -y
+        sleep 1
     fi
 
     if ! command -v foremost; then
         echo "foremost not found...Installing...."
-        sleep 1
         sudo apt install foremost -y
+        sleep 1
     fi
 
     if ! command -v strings; then
         echo "strings not found...Installing...."
-        sleep 1
         sudo apt install strings -y
+        sleep 1
     fi
     # TODO: Add Volatility installation
     #! ASK BEN ABOUT INSTALLATION PROCCESS  
