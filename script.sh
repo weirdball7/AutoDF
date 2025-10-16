@@ -54,6 +54,34 @@ function GETFILE()
     
 }
 
+#! THIS FUNCTION IS FOR AUTOMATING DUBUGING AND TESTING (DELETING OUTPUT DIRETORY AND RE-UNZIPING MEMORY DUMP FILE)
+function RESETLAB()
+{
+    echo "Would you like to reset testing enviorment? [y/n]"
+    read CHOICE
+    if [ "$CHOICE" != "n" ]; then
+        echo "Deleting $OUT_DIR_NAME..."
+        sleep 2
+        cd
+        sudo rm -rf "$OUT_DIR_PATH/$OUT_DIR_NAME"
+        echo "Re-unzipping memory dump file..."
+        sleep 2
+        cd $OUT_DIR_PATH
+        unzip memory_file.zip
+        echo "Current stracture of testing enviorment:"
+        ls
+        sleep 3
+        figlet "Testing enviorment reset completed sucsesfully!"
+        exit
+    else
+        figlet "EXITING"
+        exit
+    fi
+
+
+}
+
+
 #  Create a function to install the forensics tools if missing.
 function GETTOOLS()
 {
@@ -62,10 +90,10 @@ function GETTOOLS()
     if ! command -v binwalk; then
         echo "Binwalk not found...Installing...."
         sudo apt install binwalk -y
-        sleep 1
+        sleep 2
     else 
         echo "binwalk is installed.. continuing..."
-        sleep 1
+        sleep 2
     fi
 
     echo "Checking if bulk-extractor is installed..."
@@ -73,10 +101,10 @@ function GETTOOLS()
     if ! command -v bulk-extractor; then
         echo "Bulk_extractor not found...Installing...."
         sudo apt install bulk-extractor -y
-        sleep 1
+        sleep 2
     else 
         echo "bulk-extractor is installed.. continuing"
-        sleep 1
+        sleep 2
     fi
 
     echo "Checking if foremost is installed..."
@@ -84,10 +112,10 @@ function GETTOOLS()
     if ! command -v foremost; then
         echo "foremost not found...Installing...."
         sudo apt install foremost -y
-        sleep 1
+        sleep 2
     else 
         echo "foremost is installed.. continuing"
-        sleep 1
+        sleep 2
     fi
 
     echo "Checking if strings installed..."
@@ -95,10 +123,10 @@ function GETTOOLS()
     if ! command -v strings; then
         echo "strings not found...Installing...."
         sudo apt install strings -y
-        sleep 1
+        sleep 2
     else 
         echo "strings is installed.. continuing"
-        sleep 1
+        sleep 2
     fi
     # TODO: Add Volatility installation
     #! ASK BEN ABOUT INSTALLATION PROCCESS  
@@ -106,10 +134,13 @@ function GETTOOLS()
     
     figlet "ALL NEEDED TOOLS INSTALLED!"
 
+    RESETLAB
+
 }
 
 
 CHECKROOT
+
 
 
 # Use different carvers to automatically extract data.
