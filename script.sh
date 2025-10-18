@@ -99,7 +99,7 @@ function GETTOOLS()
     echo "Checking if bulk-extractor is installed..."
     sleep 1
     if ! command -v bulk-extractor; then
-        echo "Bulk_extractor not found...Installing...."
+        echo "bulk-extractor not found...Installing...."
         sudo apt install bulk-extractor -y
         sleep 2
     else 
