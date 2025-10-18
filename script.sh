@@ -6,172 +6,229 @@ MEM_DUMP=''
 OUT_DIR_NAME=''
 OUT_DIR_PATH=''
 MEM_FILE=''
-# Check the current user exit if not root 
+
+# Check the current user; exit if not root
 function CHECKROOT()
 {
     USER=$(whoami)
     if [ "$USER" != "root" ]; then 
-        echo 'User is not root....Exiting....'
-        figlet "YOU SHALL NOT PASS!"
+        tput setaf 1 # Red
+        echo 'User is not root....Exiting....' # Important output: not root
+        tput sgr0
+        figlet "YOU SHALL NOT PASS!" # ASCII art for not root
         exit
     else
-        echo 'User is root!...Continuing...'
-        figlet "YOU ARE ROOT!"
+        tput setaf 2 # Green
+        echo 'User is root!...Continuing...' # Important output: root
+        tput sgr0
+        figlet "YOU ARE ROOT!" # ASCII art for root
         GETFILE
-        #echo $HOME
     fi
 }
 
 # Allow the user to specify the filename; check if the file exists
 function GETFILE()
 {
-    echo "Please provide *FULL PATH* of memory dump file."
-    read MEM_DUMP 
+    tput setaf 4 # Blue
+    echo "Please provide *FULL PATH* of memory dump file." # Prompt for memory dump
+    tput sgr0 
+    read MEM_DUMP
 
     if [ ! -f "$MEM_DUMP" ]; then
-        echo "File does not exist: $MEM_DUMP"
+        tput setaf 1 # Red
+        echo "File does not exist: $MEM_DUMP" # Error: file not found
+        tput sgr0
         exit 1
     fi
     
-    echo "Please provide desired name for output directory for the script"
+    tput setaf 4 # Blue
+    echo "Please provide desired name for output directory for the script" # Prompt for output dir name
+    tput sgr0
     read OUT_DIR_NAME
 
-    echo "Please provide desired *FULL PATH* location for output directory for the script."
+    tput setaf 4 # Blue
+    echo "Please provide desired *FULL PATH* location for output directory for the script." # Prompt for output dir path
+    tput sgr0
     read OUT_DIR_PATH
 
     cd "$OUT_DIR_PATH" 
 
     if [ -d "$OUT_DIR_NAME" ]; then
-        echo "Directory $OUT_DIR_NAME already exists in $OUT_DIR_PATH."
+        tput setaf 3 # Yellow
+        echo "Directory $OUT_DIR_NAME already exists in $OUT_DIR_PATH." # Warn: dir exists
+        tput sgr0
     else
+        tput setaf 2 # Green
         mkdir "$OUT_DIR_NAME"
-        echo "Directory Created..."
+        echo "Directory Created..." # Success: dir created
+        tput sgr0
     fi
 
     mv "$MEM_DUMP" "$OUT_DIR_PATH/$OUT_DIR_NAME"
     cd "$OUT_DIR_PATH/$OUT_DIR_NAME"
-    pwd 
+    tput setaf 6 # Cyan
+    pwd # Show current path
+    tput sgr0
     GETTOOLS
-    
 }
 
-#! THIS FUNCTION IS FOR AUTOMATING DUBUGING AND TESTING (DELETING OUTPUT DIRETORY AND RE-UNZIPING MEMORY DUMP FILE)
+# Automate debugging/testing (delete output dir and re-unzip memory dump file)
 function RESETLAB()
 {
-    echo "Would you like to reset testing enviorment? [y/n]"
+    tput setaf 1 # Red
+    echo "Would you like to reset testing enviorment? [y/n]" # Prompt for reset
+    tput sgr0
     read CHOICE
     if [ "$CHOICE" != "n" ]; then
-        echo "Deleting $OUT_DIR_NAME..."
+        tput setaf 1 # Red
+        echo "Deleting $OUT_DIR_NAME..." # Important output: deleting dir
+        tput sgr0
         sleep 2
         cd
         sudo rm -rf "$OUT_DIR_PATH/$OUT_DIR_NAME"
-        echo "Re-unzipping memory dump file..."
+        tput setaf 4 # Blue
+        echo "Re-unzipping memory dump file..." # Important output: re-unzipping
+        tput sgr0
         sleep 2
         cd $OUT_DIR_PATH
         unzip memory_file.zip
-        echo "Current stracture of testing enviorment:"
+        tput setaf 6 # Cyan
+        echo "Current stracture of testing enviorment:" # Show env structure
+        tput sgr0
         ls
         sleep 3
-        figlet "TESTIN ENVIORMENT RESET COMPLETED SUCCSESFULLY!"
+        tput setaf 2 # Green
+        figlet "TESTIN ENVIORMENT RESET COMPLETED SUCCSESFULLY!" # ASCII art: reset complete
+        tput sgr0
         exit
     else
-        figlet "EXITING"
+        tput setaf 1 # Red
+        figlet "EXITING" # ASCII art: exiting
+        tput sgr0
         exit
     fi
-
-
 }
 
-
-#  Create a function to install the forensics tools if missing.
+# Install forensics tools if missing
 function GETTOOLS()
 {
-    echo "Checking if binwalk is installed..."
+    tput setaf 4 # Blue
+    echo "Checking if binwalk is installed..." # Checking binwalk
+    tput sgr0
     sleep 1
     if ! command -v binwalk; then
-        echo "Binwalk not found...Installing...."
+        tput setaf 1 # Red
+        echo "Binwalk not found...Installing...." # Installing binwalk
+        tput sgr0
         sudo apt install binwalk -y
         sleep 2
     else 
-        echo "binwalk is installed.. continuing..."
+        tput setaf 2 # Green
+        echo "binwalk is installed.. continuing..." # Binwalk installed
+        tput sgr0
         sleep 2
     fi
 
-    echo "Checking if bulk-extractor is installed..."
+    tput setaf 4 # Blue
+    echo "Checking if bulk-extractor is installed..." # Checking bulk-extractor
+    tput sgr0
     sleep 1
     if ! command -v bulk-extractor; then
-        echo "bulk-extractor not found...Installing...."
+        tput setaf 1 # Red
+        echo "bulk-extractor not found...Installing...." # Installing bulk-extractor
+        tput sgr0
         sudo apt install bulk-extractor -y
         sleep 2
     else 
-        echo "bulk-extractor is installed.. continuing"
+        tput setaf 2 # Green
+        echo "bulk-extractor is installed.. continuing" # bulk-extractor installed
+        tput sgr0
         sleep 2
     fi
 
-    echo "Checking if foremost is installed..."
+    tput setaf 4 # Blue
+    echo "Checking if foremost is installed..." # Checking foremost
+    tput sgr0
     sleep 1
     if ! command -v foremost; then
-        echo "foremost not found...Installing...."
+        tput setaf 1 # Red
+        echo "foremost not found...Installing...." # Installing foremost
+        tput sgr0
         sudo apt install foremost -y
         sleep 2
     else 
-        echo "foremost is installed.. continuing"
+        tput setaf 2 # Green
+        echo "foremost is installed.. continuing" # foremost installed
+        tput sgr0
         sleep 2
     fi
 
-    echo "Checking if strings installed..."
+    tput setaf 4 # Blue
+    echo "Checking if strings installed..." # Checking strings
+    tput sgr0
     sleep 1
     if ! command -v strings; then
-        echo "strings not found...Installing...."
+        tput setaf 1 # Red
+        echo "strings not found...Installing...." # Installing strings
+        tput sgr0
         sudo apt install binutils -y
         sleep 2
     else 
-        echo "strings is installed.. continuing"
+        tput setaf 2 # Green
+        echo "strings is installed.. continuing" # strings installed
+        tput sgr0
         sleep 2
     fi
     # TODO: Add Volatility installation
     #! ASK BEN ABOUT INSTALLATION PROCCESS  
 
-    
-    figlet "ALL NEEDED TOOLS INSTALLED!"
+    tput setaf 2 # Green
+    figlet "ALL NEEDED TOOLS INSTALLED!" # ASCII art: all tools installed
+    tput sgr0
 
-    # RESETLAB
     RUNSTRINGS
 }
-
 
 function RUNSTRINGS()
 {
     HOME=$(pwd)
     MEM_FILE=$(basename "$MEM_DUMP")
-    echo "$MEM_FILE"
-    echo "Creating strings output directory"
+    tput setaf 6 # Cyan
+    echo "$MEM_FILE" # Show memory dump filename
+    tput sgr0
+    tput setaf 4 # Blue
+    echo "Creating strings output directory" # Creating output dir
+    tput sgr0
     sleep 1
     mkdir STRINGS_DUMP
-    #? - Possible approach but it producess more work down the line.
-    #? mv $MEM_FILE STRINGS_DUMP 
-    #? cd STRINGS_DUMP
-    #? strings $MEM_FILE > strings-full.txt
-    #! - Better approach -
-    strings $MEM_FILE > $HOME/STRINGS_DUMP/strings-full.txt 
+
+    tput setaf 4 # Blue
+    echo "Running full strings scan on $MEM_FILE" # Running strings scan
+    tput sgr0
+    strings $MEM_FILE > $HOME/STRINGS_DUMP/strings-full.txt
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+    tput setaf 4 # Blue
+    echo "**FULL CURRENT PATH:**" # Show current path
+    tput sgr0
     pwd 
+    sleep 3
+    tput setaf 4 # Blue
+    echo "**CONTENT OF: $OUT_DIR_NAME**" # Show output dir content
+    tput sgr0
     ls
+    sleep 3
+    tput setaf 4 # Blue
+    echo "**CONTENT OF: STRINGS_DUMP**" # Show strings dump content
+    tput sgr0
     ls $HOME/STRINGS_DUMP
-    sleep 1
+    sleep 3
     RESETLAB
 }
 
-
 CHECKROOT
 
-
-
 # Use different carvers to automatically extract data.
-
-#  Use different carvers to automatically extract data
-   # Data should be saved into a directory
-
-#  Attempt to extract network traffic; if found, display to the user the location and size.
-
+# Attempt to extract network traffic; if found, display to the user the location and size.
 # Check for human-readable (exe files, passwords, usernames, etc.).
-
