@@ -209,21 +209,120 @@ function RUNSTRINGS()
     tput setaf 2 # Green
     echo "[*SCAN COMPLETE*]" # Scan complete
     tput sgr0
-    tput setaf 4 # Blue
-    echo "**FULL CURRENT PATH:**" # Show current path
-    tput sgr0
-    pwd 
-    sleep 3
-    tput setaf 4 # Blue
-    echo "**CONTENT OF: $OUT_DIR_NAME**" # Show output dir content
-    tput sgr0
-    ls
-    sleep 3
-    tput setaf 4 # Blue
-    echo "**CONTENT OF: STRINGS_DUMP**" # Show strings dump content
-    tput sgr0
+    # tput setaf 4 # Blue
+    # echo "**FULL CURRENT PATH:**" # Show current path
+    # tput sgr0
+    # pwd 
+    # sleep 3
+    # tput setaf 4 # Blue
+    # echo "**CONTENT OF: $OUT_DIR_NAME**" # Show output dir content
+    # tput sgr0
+    # ls
+    # sleep 3
+    # tput setaf 4 # Blue
+    # echo "**CONTENT OF: STRINGS_DUMP**" # Show strings dump content
+    # tput sgr0
     ls $HOME/STRINGS_DUMP
-    sleep 3
+
+    tput setaf 4
+    echo "Scanning for username in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_USERNAME=$(strings $MEM_FILE | grep -i 'username')
+    echo $STRINGS_USERNAME > $HOME/STRINGS_DUMP/strings-username.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
+
+    tput setaf 4
+    echo "Scanning for password in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_PASSWORD=$(strings $MEM_FILE | grep -i 'password')
+    echo $STRINGS_PASSWORD > $HOME/STRINGS_DUMP/strings-password.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
+
+    tput setaf 4
+    echo "Scanning for address in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_ADDRESS=$(strings $MEM_FILE | grep -i 'address')
+    echo $STRINGS_ADDRESS > $HOME/STRINGS_DUMP/strings-address.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
+
+    tput setaf 4
+    echo "Scanning for user in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_USER=$(strings $MEM_FILE | grep -i 'user')
+    echo $STRINGS_USER > $HOME/STRINGS_DUMP/strings-user.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
+    tput setaf 4
+    echo "Scanning for IP in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_IP=$(strings $MEM_FILE | grep -i 'IP')
+    echo $STRINGS_IP > $HOME/STRINGS_DUMP/strings-IP.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
+
+    tput setaf 4
+    echo "Scanning for connect in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_CONNECT=$(strings $MEM_FILE | grep -i 'connect')
+    echo $STRINGS_CONNECT > $HOME/STRINGS_DUMP/strings-connect.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
+    tput setaf 4
+    echo "Scanning for network in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_NETWORK=$(strings $MEM_FILE | grep -i 'network')
+    echo $STRINGS_NETWORK > $HOME/STRINGS_DUMP/strings-network.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
+    
+    # sleep 3
+
+
     RESETLAB
 }
 
