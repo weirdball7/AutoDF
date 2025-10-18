@@ -1,10 +1,11 @@
 #!/bin/bash
 START_TIME=''
 END_TIME=''
-HOME=$(pwd)
+HOME=''
 MEM_DUMP=''
 OUT_DIR_NAME=''
 OUT_DIR_PATH=''
+MEM_FILE=''
 # Check the current user exit if not root 
 function CHECKROOT()
 {
@@ -35,7 +36,7 @@ function GETFILE()
     echo "Please provide desired name for output directory for the script"
     read OUT_DIR_NAME
 
-    echo "Please provide desired location for output directory for the script."
+    echo "Please provide desired *FULL PATH* location for output directory for the script."
     read OUT_DIR_PATH
 
     cd "$OUT_DIR_PATH" 
@@ -71,7 +72,7 @@ function RESETLAB()
         echo "Current stracture of testing enviorment:"
         ls
         sleep 3
-        figlet "Testing enviorment reset completed sucsesfully!"
+        figlet "TESTIN ENVIORMENT RESET COMPLETED SUCCSESFULLY!"
         exit
     else
         figlet "EXITING"
@@ -122,7 +123,7 @@ function GETTOOLS()
     sleep 1
     if ! command -v strings; then
         echo "strings not found...Installing...."
-        sudo apt install strings -y
+        sudo apt install binutils -y
         sleep 2
     else 
         echo "strings is installed.. continuing"
@@ -134,8 +135,30 @@ function GETTOOLS()
     
     figlet "ALL NEEDED TOOLS INSTALLED!"
 
-    RESETLAB
+    # RESETLAB
+    RUNSTRINGS
+}
 
+
+function RUNSTRINGS()
+{
+    HOME=$(pwd)
+    MEM_FILE=$(basename "$MEM_DUMP")
+    echo "$MEM_FILE"
+    echo "Creating strings output directory"
+    sleep 1
+    mkdir STRINGS_DUMP
+    #? - Possible approach but it producess more work down the line.
+    #? mv $MEM_FILE STRINGS_DUMP 
+    #? cd STRINGS_DUMP
+    #? strings $MEM_FILE > strings-full.txt
+    #! - Better approach -
+    strings $MEM_FILE > $HOME/STRINGS_DUMP/strings-full.txt 
+    pwd 
+    ls
+    ls $HOME/STRINGS_DUMP
+    sleep 1
+    RESETLAB
 }
 
 
