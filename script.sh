@@ -6,6 +6,7 @@ MEM_DUMP=''
 OUT_DIR_NAME=''
 OUT_DIR_PATH=''
 MEM_FILE=''
+NETWORK_FILE=''
 
 # Check the current user; exit if not root
 function CHECKROOT()
@@ -133,7 +134,7 @@ function GETTOOLS()
     echo "Checking if bulk-extractor is installed..." # Checking bulk-extractor
     tput sgr0
     sleep 1
-    if ! command -v bulk-extractor; then
+    if ! command -v bulk_extractor; then
         tput setaf 1 # Red
         echo "bulk-extractor not found...Installing...." # Installing bulk-extractor
         tput sgr0
@@ -323,6 +324,26 @@ function RUNSTRINGS()
     # sleep 3
 
 
+    RUNBULK
+}
+
+function RUNBULK()
+{
+    MEM_FILE=$(basename "$MEM_DUMP")
+    echo "Running bulk-extractor"
+    sleep 1
+    bulk_extractor -o BULK_DUMP $MEM_FILE
+    echo "bulk-extractor completed..PATH: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"
+    sleep 1
+    echo "Looking for network file..."
+    sleep 1
+    NETWORK_FILE=$(cd $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP | ls | grep -i ".pcapng")
+    if [ "$NETWORK_FILE" != "" ]; then
+        # FILE_SIZE=$(ls -l $NETWORK_FILE)
+        echo "Network File *FOUND* Location: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"
+    else
+        echo "Network file not found"
+    fi
     RESETLAB
 }
 
