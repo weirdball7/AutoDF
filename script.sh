@@ -341,25 +341,46 @@ function RUNSTRINGS()
     RUNBULK
 }
 
+# ...existing code...
 function RUNBULK()
 {
-    MEM_FILE=$(basename "$MEM_DUMP")
-    echo "Running bulk-extractor"
+    MEM_FILE=$(basename "$MEM_DUMP")                                 # get filename from full path
+    tput setaf 4                                                      # blue
+    echo "Running bulk-extractor"                                     # info: starting bulk_extractor
+    tput sgr0                                                         # reset color
     sleep 1
-    bulk_extractor -o BULK_DUMP $MEM_FILE
-    echo "bulk-extractor completed..PATH: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"
+
+    bulk_extractor -o BULK_DUMP $MEM_FILE                             # run bulk_extractor (output -> BULK_DUMP)
+
+    tput setaf 2                                                      # green
+    echo "bulk-extractor completed..PATH: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"  # success + path
+    tput sgr0                                                         # reset color
     sleep 1
-    echo "Looking for network file..."
+
+    tput setaf 4                                                      # blue
+    echo "Looking for network file..."                                # info: searching for pcap/pcapng
+    tput sgr0                                                         # reset color
     sleep 1
-    NETWORK_FILE=$(cd $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP | ls | grep -i ".pcapng")
+
+    NETWORK_FILE=$(cd $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP | ls | grep -i ".pcap")  # find first .pcapng (same logic as before)
+
     if [ "$NETWORK_FILE" != "" ]; then
-        FILE_SIZE=$(ls -l $NETWORK_FILE)
-        echo "Network File *FOUND* Location: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"
+        FILE_SIZE=$(ls -l $NETWORK_FILE)                              # get file listing (size/info)
+        tput setaf 2                                                  # green
+        echo "Network File *FOUND* Location: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"  # found message
+        tput sgr0                                                     # reset color
     else
-        echo "Network file not found"
+        tput setaf 1                                                  # red
+        echo "Network file not found"                                 # not found message
+        tput sgr0                                                     # reset color
     fi
-    RESETLAB
+
+    RESETLAB                                                         # prompt to reset testing env (existing behavior)
 }
+#
+
+
+
 
 CHECKROOT
 
