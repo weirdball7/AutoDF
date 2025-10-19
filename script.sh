@@ -320,6 +320,20 @@ function RUNSTRINGS()
 
     sleep 1
 
+
+    tput setaf 4
+    echo "Scanning for .exe in $MEM_FILE..."
+    tput sgr0
+    sleep 1
+    STRINGS_EXE=$(strings $MEM_FILE | grep -i '.exe')
+    echo $STRINGS_EXE > $HOME/STRINGS_DUMP/strings-exe.txt
+    ls $HOME/STRINGS_DUMP
+    tput setaf 2 # Green
+    echo "[*SCAN COMPLETE*]" # Scan complete
+    tput sgr0
+
+    sleep 1
+
     
     # sleep 3
 
@@ -339,7 +353,7 @@ function RUNBULK()
     sleep 1
     NETWORK_FILE=$(cd $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP | ls | grep -i ".pcapng")
     if [ "$NETWORK_FILE" != "" ]; then
-        # FILE_SIZE=$(ls -l $NETWORK_FILE)
+        FILE_SIZE=$(ls -l $NETWORK_FILE)
         echo "Network File *FOUND* Location: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"
     else
         echo "Network file not found"
