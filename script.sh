@@ -210,19 +210,6 @@ function RUNSTRINGS()
     tput setaf 2 # Green
     echo "[*SCAN COMPLETE*]" # Scan complete
     tput sgr0
-    # tput setaf 4 # Blue
-    # echo "**FULL CURRENT PATH:**" # Show current path
-    # tput sgr0
-    # pwd 
-    # sleep 3
-    # tput setaf 4 # Blue
-    # echo "**CONTENT OF: $OUT_DIR_NAME**" # Show output dir content
-    # tput sgr0
-    # ls
-    # sleep 3
-    # tput setaf 4 # Blue
-    # echo "**CONTENT OF: STRINGS_DUMP**" # Show strings dump content
-    # tput sgr0
     ls $HOME/STRINGS_DUMP
 
     tput setaf 4
@@ -337,7 +324,12 @@ function RUNSTRINGS()
     
     # sleep 3
 
+    RUNBINWALK
+    
+}
 
+function RUNBINWALK()
+{
     RUNBULK
 }
 
@@ -361,8 +353,8 @@ function RUNBULK()
     echo "Looking for network file..."                                # info: searching for pcap/pcapng
     tput sgr0                                                         # reset color
     sleep 1
-
-    NETWORK_FILE=$(cd $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP | ls | grep -i ".pcap")  # find first .pcapng (same logic as before)
+ 
+    NETWORK_FILE=$(cd $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP | ls | grep *.pcap)          # find first .pcapng (same logic as before)
 
     if [ "$NETWORK_FILE" != "" ]; then
         FILE_SIZE=$(ls -l $NETWORK_FILE)                              # get file listing (size/info)
