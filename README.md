@@ -1,4 +1,7 @@
 # AutoDF
+![Bash](https://img.shields.io/badge/Built%20with-Bash-4EAA25?logo=gnu-bash&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Linux-lightgrey)
+![Status](https://img.shields.io/badge/Status-Active-success)
 
 AutoDF (work-in-progress) — a small collection of tooling and scripts to help automate basic memory-forensics tasks on a Linux host. The repository currently contains a Bash script (script.sh) that guides the user through preparing an output workspace, checks for and installs several common forensics utilities, runs a full strings extraction on a provided memory dump, performs keyword-focused string searches, and provides a simple reset helper to re-create a testing environment.
 
