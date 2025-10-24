@@ -330,6 +330,16 @@ function RUNSTRINGS()
 
 function RUNBINWALK()
 {
+    HOME=$(pwd)
+    MEM_FILE=$(basename "$MEM_DUMP")
+    echo "Running binwalk..."
+    sleep 1
+    mkdir BINWALK_DUMP
+    ls 
+    sleep 2
+    binwalk $MEM_FILE > $HOME/BINWALK_DUMP/binwalk_scan.txt
+    cat $HOME/BINWALK_DUMP/binwalk_scan.txt
+    sleep 1
     RUNBULK
 }
 
