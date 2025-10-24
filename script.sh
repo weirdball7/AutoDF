@@ -339,7 +339,11 @@ function RUNBINWALK()
     sleep 2
     binwalk $MEM_FILE > $HOME/BINWALK_DUMP/binwalk_scan.txt
     cat $HOME/BINWALK_DUMP/binwalk_scan.txt
-    sleep 1
+    echo "Extracting files from binwalk scan..."
+    sleep 2
+    binwalk -e -C $HOME/BINWALK_DUMP --run-as=root $MEM_FILE
+    ls $HOME/BINWALK_DUMP
+    sleep 2
     RUNBULK
 }
 
