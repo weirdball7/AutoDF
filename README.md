@@ -1,4 +1,4 @@
-# AutoDF
+# AutoDF 
 ![Bash](https://img.shields.io/badge/Built%20with-Bash-4EAA25?logo=gnu-bash&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Linux-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Active-success)
@@ -104,3 +104,81 @@ No license file in the repository yet. Add a LICENSE (e.g. MIT) if you want to o
 ## Contact
 Maintainer: weirdball7 (GitHub)
 Open an issue in this repository for questions or improvements.
+
+---
+
+Lightweight wrapper script to run quick memory-dump forensics (strings / binwalk / bulk-extractor) and collect outputs into a user-specified directory. Outputs are colorized in the terminal for important messages.
+
+## Prerequisites
+- Run as root (script checks and exits if not root).
+- Tools required (script will attempt to install missing ones):
+  - binwalk
+  - bulk-extractor
+  - foremost
+  - binutils (for `strings`)
+- Bash shell (Ubuntu / WSL recommended for this environment).
+
+## How it works (high level)
+1. Prompts for full path to memory dump.
+2. Prompts for output directory name and location; moves memdump into that directory.
+3. Ensures directories and runs toolchains:
+   - Strings extraction -> `STRINGS_DUMP/`
+   - Binwalk output -> `BINWALK_DUMP/`
+   - bulk_extractor output -> `BULK_DUMP/`
+4. Looks for network capture files (pcap / pcapng) inside `BULK_DUMP` and reports location & size.
+5. Prompts to reset testing environment (delete and optionally re-unzip).
+
+## Usage
+1. Make script executable:
+   sudo chmod +x script.sh
+2. Run:
+   sudo ./script.sh
+3. Follow prompts:
+   - Provide full path to memory dump (e.g. /home/user/dumps/memdump.mem)
+   - Provide output directory name (e.g. ProjectDump)
+   - Provide output directory path (e.g. /home/user/forensics)
+
+## Output layout
+After run (example):
+- /path/to/OUT_DIR_NAME/
+  - STRINGS_DUMP/
+    - strings-full.txt
+    - strings-username.txt
+    - ...
+  - BINWALK_DUMP/
+    - binwalk_scan.txt
+  - BULK_DUMP/
+    - packets.pcap (if found)
+    - other bulk_extractor files
+
+## Common issues & quick fixes
+- "User is root!...Continuing..." vs "User is not root....Exiting...."  
+  Script enforces root; run with sudo or as root.
+
+- "command not found" on constructs like `=memdump.mem` or `$VAR=`:  
+  Assignment must be `VAR=value` (no `$` on left side).
+
+- "No such file or directory" when cd-ing into BULK_DUMP:  
+  bulk_extractor writes to the directory where it was invoked. Ensure script runs bulk_extractor from the target directory or use absolute paths. Confirm `OUT_DIR_PATH` and `OUT_DIR_NAME` values.
+
+- Want file size stored in a variable:  
+  Safe pattern already used in script:
+  FILE_LISTING=$(ls -l -- "$NETWORK_FILE")  
+  FILE_SIZE_BYTES=$(stat -c%s -- "$NETWORK_FILE" 2>/dev/null || awk '{print $5}' <<< "$FILE_LISTING")
+
+- Avoid piping `cd` into other commands (e.g. `cd dir | ls`) — it doesn't change the working directory for following commands.
+
+## Notes on colors & comments
+- Script uses `tput setaf` + `tput sgr0` to color messages (blue info, green success, red errors, cyan details).
+- Inline comments are present in the script for clarity.
+
+## Debug tips
+- Enable Bash debug to trace variable values:
+  set -x
+  ./script.sh
+  set +x
+- Inspect current working dir and variables during run:
+  pwd; echo "$OUT_DIR_PATH" "$OUT_DIR_NAME" "$MEM_DUMP"
+
+## License / Disclaimer
+For educational / lab use only. Verify legality before analyzing memory images.
