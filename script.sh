@@ -363,14 +363,18 @@ function RUNBULK()
     echo "Looking for network file..."                                # info: searching for pcap/pcapng
     tput sgr0                                                         # reset color
     sleep 1
- 
-    NETWORK_FILE=$(cd $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP | ls | grep *.pcap)          # find first .pcapng (same logic as before)
 
-    if [ "$NETWORK_FILE" != "" ]; then
-        FILE_SIZE=$(ls -l $NETWORK_FILE)                              # get file listing (size/info)
+    # Search for the first .pcap or .pcapng file under BULK_DUMP and return the full path
+    NETWORK_FILE=$(find "$OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP" -type f \( -iname '*.pcap' -o -iname '*.pcapng' \) -print -quit)
+
+    if [ -n "$NETWORK_FILE" ]; then
         tput setaf 2                                                  # green
-        echo "Network File *FOUND* Location: $OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"  # found message
-        tput sgr0                                                     # reset color
+        echo "Network File *FOUND* Location: $NETWORK_FILE"            # found message (full path)
+        tput sgr0  
+        FILE_LISTING=$(ls -l -- "$NETWORK_FILE" | awk '{print $5}')
+        tput setaf 6                                                  # cyan
+        echo "File size: $FILE_LISTING"
+        tput sgr0
     else
         tput setaf 1                                                  # red
         echo "Network file not found"                                 # not found message
