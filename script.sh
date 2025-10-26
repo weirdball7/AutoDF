@@ -117,7 +117,7 @@ function GETTOOLS()
     echo "Checking if binwalk is installed..." # Checking binwalk
     tput sgr0
     sleep 1
-    if ! command -v binwalk; then
+    if ! command -v binwalk > /dev/null; then
         tput setaf 1 # Red
         echo "Binwalk not found...Installing...." # Installing binwalk
         tput sgr0
@@ -134,7 +134,7 @@ function GETTOOLS()
     echo "Checking if bulk-extractor is installed..." # Checking bulk-extractor
     tput sgr0
     sleep 1
-    if ! command -v bulk_extractor; then
+    if ! command -v bulk_extractor > /dev/null; then
         tput setaf 1 # Red
         echo "bulk-extractor not found...Installing...." # Installing bulk-extractor
         tput sgr0
@@ -151,7 +151,7 @@ function GETTOOLS()
     echo "Checking if foremost is installed..." # Checking foremost
     tput sgr0
     sleep 1
-    if ! command -v foremost; then
+    if ! command -v foremost > /dev/null; then
         tput setaf 1 # Red
         echo "foremost not found...Installing...." # Installing foremost
         tput sgr0
@@ -168,7 +168,7 @@ function GETTOOLS()
     echo "Checking if strings installed..." # Checking strings
     tput sgr0
     sleep 1
-    if ! command -v strings; then
+    if ! command -v strings > /dev/null; then
         tput setaf 1 # Red
         echo "strings not found...Installing...." # Installing strings
         tput sgr0
@@ -187,6 +187,23 @@ function GETTOOLS()
     figlet "ALL NEEDED TOOLS INSTALLED!" # ASCII art: all tools installed
     tput sgr0
 
+    VOLSETUP
+}
+
+function VOLSETUP()
+{
+    tput setaf 4 # Blue
+    echo "Seting up Volatility... "
+    tput sgr0
+
+    cd "$OUT_DIR_PATH/Volatililty_for_Linux/volatility_2.5.linux.standalone"
+    sleep 1
+    ls
+    sleep 1
+    cp "$OUT_DIR_PATH/Volatililty_for_Linux/volatility_2.5.linux.standalone/vol" "$OUT_DIR_PATH/$OUT_DIR_NAME"
+    cd "$OUT_DIR_PATH/$OUT_DIR_NAME" 
+    ls
+    sleep 1
     RUNSTRINGS
 }
 
