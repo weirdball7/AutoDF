@@ -107,10 +107,10 @@ Open an issue in this repository for questions or improvements.
 
 ---
 
-Lightweight Bash wrapper to run quick memory-dump forensics (strings / binwalk / bulk-extractor). The script colorizes important terminal output and includes inline comments for clarity.
+Lightweight Bash wrapper to run quick memory-dump forensics (strings, binwalk, bulk-extractor, foremost). The script colorizes important terminal output and includes inline comments for clarity.
 
 ## Prerequisites
-- Run as root (script checks and exits if not root).
+- Run as root (script enforces this in CHECKROOT).
 - Bash (Ubuntu / WSL recommended).
 - Tools the script installs or expects:
   - binwalk
@@ -120,21 +120,22 @@ Lightweight Bash wrapper to run quick memory-dump forensics (strings / binwalk /
   - figlet (optional, used for banners)
   - unzip (used by RESETLAB)
 
-## High level flow
-1. CHECKROOT — exits if user != root.
-2. GETFILE — prompts for:
-   - Full path to memory dump (`MEM_DUMP`)
-   - Output directory name (`OUT_DIR_NAME`)
-   - Output directory path (`OUT_DIR_PATH`)  
-   The script moves the provided memdump into: `$OUT_DIR_PATH/$OUT_DIR_NAME` and cd's there.
-3. GETTOOLS — ensures required tools are installed.
-4. RUNSTRINGS — creates `STRINGS_DUMP/`, runs various `strings`+`grep` scans and writes outputs to `$HOME/STRINGS_DUMP` (note: `HOME` is set to current working directory inside RUNSTRINGS).
-   - Produces: `strings-full.txt`, `strings-username.txt`, `strings-password.txt`, `strings-address.txt`, `strings-user.txt`, `strings-IP.txt`, `strings-connect.txt`, `strings-network.txt`, `strings-exe.txt`
-5. RUNBINWALK — creates `BINWALK_DUMP/`, runs `binwalk` and `binwalk -e` (extraction into `BINWALK_DUMP`), then calls RUNBULK.
-6. RUNBULK — runs `bulk_extractor -o BULK_DUMP <memfile>` (relative output), then searches for network captures under `"$OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"`. If found, the script stores an ls -l listing size in a variable:
-   - `NETWORK_FILE` found via `find ... -iname '*.pcap' -o -iname '*.pcapng' -print -quit`
-   - `FILE_LISTING` is captured using: `ls -l -- "$NETWORK_FILE" | awk '{print $5}'` (the script prints that value as "File size")
-7. RESETLAB — prompts the user to delete the output directory and optionally re-unzip a test archive (`memory_file.zip`).
+## High-level flow (functions)
+- CHECKROOT — exits if the current user is not root.
+- GETFILE — prompts for:
+  - Full path to memory dump (`MEM_DUMP`)
+  - Output directory name (`OUT_DIR_NAME`)
+  - Output directory path (`OUT_DIR_PATH`)  
+  Moves the memdump into: `$OUT_DIR_PATH/$OUT_DIR_NAME` and cds there.
+- GETTOOLS — checks/installs required tools, then calls VOLSETUP.
+- VOLSETUP — copies Volatility helper files into the working dir, then calls RUNSTRINGS.
+- RUNSTRINGS — sets `HOME=$(pwd)`, creates `STRINGS_DUMP/`, runs `strings` scans and writes results into `$HOME/STRINGS_DUMP`.
+- RUNBINWALK — creates `BINWALK_DUMP/`, runs `binwalk` and extraction, then calls RUNBULK.
+- RUNBULK — runs `bulk_extractor -o BULK_DUMP <memfile>`, searches `"$OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"` for `.pcap`/`.pcapng`, stores the first hit in `NETWORK_FILE`, captures size via:
+  - `FILE_LISTING=$(ls -l -- "$NETWORK_FILE" | awk '{print $5}')`
+  and prints results with colors.
+- RUNFOREMOST — runs `foremost -i $MEM_FILE -o FOREMOST_DUMP`.
+- RESETLAB — prompts to delete the output directory and can re-unzip `memory_file.zip` for testing.
 
 ## Usage
 1. Make executable:
@@ -142,16 +143,24 @@ Lightweight Bash wrapper to run quick memory-dump forensics (strings / binwalk /
 2. Run:
    sudo ./script.sh
 3. Follow prompts:
-   - Provide full path to memdump (e.g. `/home/user/dumps/memdump.mem`)
+   - Provide full path to memdump (e.g. `/home/user/memdump.mem`)
    - Provide output dir name (e.g. `ProjectDump`)
    - Provide output dir path (e.g. `/home/user/forensics`)
 
-## Important behaviors & caveats
-- The script moves the memdump into the chosen output folder and runs tools from that location — relative tool outputs (like `-o BULK_DUMP`) are created relative to where the command was invoked.
-- RUNBULK currently invokes bulk_extractor with a relative output directory `BULK_DUMP`. The script then searches the absolute path `"$OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"` for .pcap / .pcapng files.
-- File size is captured into a variable using `ls -l -- "$NETWORK_FILE" | awk '{print $5}'`. The script prints that value as "File size".
-- Avoid piping `cd` (e.g. `cd dir | ls`) — that won't change the shell's working directory for subsequent commands.
-- Variable assignments must not include `$` on the left side (e.g. `VAR=value`, not `$VAR=value`).
+## Output layout (example)
+- /path/to/ProjectDump/
+  - STRINGS_DUMP/
+    - strings-full.txt
+    - strings-username.txt
+    - strings-password.txt
+    - ...
+  - BINWALK_DUMP/
+    - binwalk_scan.txt
+    - extracted files
+  - BULK_DUMP/
+    - packets.pcap (if found)
+    - bulk_extractor outputs
+  - FOREMOST_DUMP/
 
 ## Color convention (tput setaf)
 - Red (1) = errors / destructive actions
@@ -160,26 +169,21 @@ Lightweight Bash wrapper to run quick memory-dump forensics (strings / binwalk /
 - Cyan (6) = details / listings
 - Yellow (3) = warnings
 
+## Important notes & caveats
+- The script moves the supplied memdump into the chosen output folder and runs tools from there. bulk_extractor is invoked with a relative `-o BULK_DUMP`, so outputs appear under the working directory where the command runs.
+- `RUNSTRINGS` sets `HOME=$(pwd)` and writes string outputs to `$HOME/STRINGS_DUMP`. Expect `HOME` here to be the working dir, not the system home.
+- File size for found network captures is captured into a variable using `ls -l -- "$NETWORK_FILE" | awk '{print $5}'`. The script prints that value.
+- Avoid piping `cd` (e.g. `cd dir | ls`) — that does not change the shell's working directory for subsequent commands.
+- Variable assignment: use `VAR=value` (no `$` on left side).
+- The script uses `MEM_FILE=$(basename "$MEM_DUMP")` to derive filename and relies on global vars populated in GETFILE.
+
 ## Debug tips
-- Enable tracing to see variable values:
+- Enable shell tracing:
   set -x
   sudo ./script.sh
   set +x
-- Print relevant variables during run:
+- Print variables during run:
   echo "OUT_DIR_PATH='$OUT_DIR_PATH' OUT_DIR_NAME='$OUT_DIR_NAME' MEM_DUMP='$MEM_DUMP'"
-
-## Output layout (example)
-- /path/to/ProjectDump/
-  - STRINGS_DUMP/
-    - strings-full.txt
-    - strings-username.txt
-    - ...
-  - BINWALK_DUMP/
-    - binwalk_scan.txt
-    - _extracted/
-  - BULK_DUMP/
-    - packets.pcap (if found)
-    - other bulk_extractor outputs
 
 ## License / Disclaimer
 For lab / educational use only. Verify legal authority before analyzing memory images.
