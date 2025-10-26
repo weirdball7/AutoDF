@@ -198,12 +198,13 @@ function VOLSETUP()
 
     cd "$OUT_DIR_PATH/Volatililty_for_Linux/volatility_2.5.linux.standalone"
     sleep 1
-    ls
-    sleep 1
+    # ls
+    # sleep 1
     cp "$OUT_DIR_PATH/Volatililty_for_Linux/volatility_2.5.linux.standalone/vol" "$OUT_DIR_PATH/$OUT_DIR_NAME"
     cd "$OUT_DIR_PATH/$OUT_DIR_NAME" 
-    ls
-    sleep 1
+    # ls
+    # sleep 1
+    figlet "VOLATILITY IS ALL SET!"
     RUNSTRINGS
 }
 
@@ -402,7 +403,19 @@ function RUNBULK()
         tput sgr0                                                     # reset color
     fi
 
-    RESETLAB                                                         # prompt to reset testing env (existing behavior)
+    RUNFOREMOST                                                        # prompt to reset testing env (existing behavior)
+}
+
+function RUNFOREMOST()
+{
+    echo "Starting foremost..."
+    sleep 1
+    foremost -i $MEM_FILE -o FOREMOST_DUMP
+    echo "[*COMPLETE!*]"
+    ls $OUT_DIR_PATH/$OUT_DIR_NAME/FOREMOST_DUMP
+    sleep 3
+
+    RESETLAB
 }
 #
 
