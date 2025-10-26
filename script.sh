@@ -415,12 +415,20 @@ function RUNFOREMOST()
     ls $OUT_DIR_PATH/$OUT_DIR_NAME/FOREMOST_DUMP
     sleep 3
 
-    RESETLAB
+    RUNVOL
 }
 #
 
 
-
+function RUNVOL()
+{
+    sleep 2
+    echo "Running volatility..."
+    mkdir VOLATILITY_DUMP
+    ./vol -f $MEM_FILE imageinfo --output-file=$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/imageinfo.txt
+    cat $OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/imageinfo.txt
+    RESETLAB
+}
 
 CHECKROOT
 
