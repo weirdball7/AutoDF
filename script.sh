@@ -427,10 +427,15 @@ function RUNVOL()
     mkdir VOLATILITY_DUMP
     ./vol -f $MEM_FILE imageinfo --output-file=$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/imageinfo.txt
     cat $OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/imageinfo.txt
+    echo "Getting profile..."
+    sleep 1
+    SYSPROF=$(./vol -f $MEM_FILE imageinfo | grep -i profile | awk '{print $4}')
+    echo $SYSPROF
+    sleep 2
     RESETLAB
 }
 
-CHECKROOT
+CHECKROOT 
 
 # Use different carvers to automatically extract data.
 # Attempt to extract network traffic; if found, display to the user the location and size.
