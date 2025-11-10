@@ -419,19 +419,44 @@ function RUNFOREMOST()
 }
 #
 
-
 function RUNVOL()
 {
     sleep 2
     echo "Running volatility..."
     mkdir VOLATILITY_DUMP
-    ./vol -f $MEM_FILE imageinfo --output-file=$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/imageinfo.txt
+    ./vol -f $MEM_FILE --output-file=$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/imageinfo.txt imageinfo
     cat $OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/imageinfo.txt
     echo "Getting profile..."
     sleep 1
     SYSPROF=$(./vol -f "$MEM_FILE" imageinfo | grep -i profile | awk '{print $4}' | tr -d ',')
     echo $SYSPROF
     sleep 2
+    echo "Geting list of running proccesses...."
+    sleep 1
+    ./vol -f $MEM_FILE --profile=$SYSPROF --output-file=$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/pslist.txt pslist
+    cat $OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/pslist.txt
+    sleep 1
+    echo "Getting list of network connections...."
+    if [ "$SYSPROF" != "WinXPSP2x86" ] && [ "$SYSPROF" != "Win2003SP2x64" ]; then
+        ./vol -f "$MEM_FILE" --profile="$SYSPROF" --output-file="$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/netscan.txt" netscan
+        cat "$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/netscan.txt"
+    else 
+        echo "Invalid profile for netscan, trying connections instead...."
+        ./vol -f "$MEM_FILE" --profile="$SYSPROF" --output-file="$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/connections.txt" connections
+        cat "$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/connections.txt"
+    fi
+    echo "Looking for registery information...."
+    ./vol -f $MEM_FILE --profile=$SYSPROF --output-file=$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/hivelist.txt hivelist
+    cat $OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/hivelist.txt
+
+    echo "Extracting registery files...."
+    mkdir $OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/REGDUMP
+    ./vol -f $MEM_FILE --profile=$SYSPROF --dump-dir=$OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/REGDUMP dumpregistry
+    ls $OUT_DIR_PATH/$OUT_DIR_NAME/VOLATILITY_DUMP/REGDUMP
+    sleep 2
+    
+    tree  $OUT_DIR_PATH/$OUT_DIR_NAME
+    
     RESETLAB
 }
 
