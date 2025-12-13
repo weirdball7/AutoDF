@@ -1,202 +1,95 @@
-# AutoDF 
+# AutoDF 🔍
 ![Bash](https://img.shields.io/badge/Built%20with-Bash-4EAA25?logo=gnu-bash&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Linux-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
-AutoDF (work-in-progress) — a small collection of tooling and scripts to help automate basic memory-forensics tasks on a Linux host. The repository currently contains a Bash script (script.sh) that guides the user through preparing an output workspace, checks for and installs several common forensics utilities, runs a full strings extraction on a provided memory dump, performs keyword-focused string searches, and provides a simple reset helper to re-create a testing environment.
+Lightweight Bash wrapper to run quick memory-dump forensic workflows. AutoDF helps automate the common steps of memory-dump examination (strings, binwalk, bulk-extractor, foremost, and a Volatility helper). The script colorizes terminal output and includes inline comments to improve readability and traceability.
 
-This README describes what the script does, how to run it, prerequisites, and suggested improvements.
+📋 Quick highlights
+Script enforces running as root (via CHECKROOT).
+Prompts for a memory dump path and an output project directory, then moves the memory dump into that project directory (destructive — make a copy if needed).
+Runs multiple forensic tools and collects outputs into per-tool directories under the project directory (STRINGS_DUMP, BINWALK_DUMP, BULK_DUMP, FOREMOST_DUMP, VOLATILITY_DUMP).
+Generates a REPORT.txt with result summaries and will create a ZIP of outputs using ZIPOUTPUT.
+Includes a RESETLAB helper to reinitialize a project directory (useful for labs).
+⚙️ Prerequisites
+A Linux environment (Debian/Ubuntu recommended). The script uses apt to install missing dependencies.
+The script must be run as root (use sudo).
+Installed or installable packages:
+binwalk
+bulk-extractor (invoked in shell as bulk_extractor)
+foremost
+binutils (provides strings)
+figlet (optional — used for banners)
+unzip (used by RESETLAB for example archives)
+Optional: A local copy of the Volatility standalone Linux binary is included in Volatility_for_Linux/ in this repo — volatility_2.5_linux_x86. The script has a VOLSETUP step that can use this.
+Install dependencies (optional manual step):
 
-## Current contents (high level)
-- script.sh — main Bash script that:
-  - enforces running as root,
-  - prompts for a memory-dump file full path and output directory,
-  - moves the memory file into the output directory,
-  - checks for/installs tools (binwalk, bulk-extractor, foremost, strings/binutils),
-  - creates a STRINGS_DUMP directory and writes:
-    - strings-full.txt (full strings output)
-    - strings-username.txt, strings-password.txt, strings-address.txt, strings-user.txt, strings-IP.txt, strings-connect.txt, strings-network.txt (keyword-filtered outputs)
-  - includes a RESETLAB helper that can remove the output directory and re-unzip a `memory_file.zip` for testing.
-- README.md — this file (updated)
-- (future) Volatility integration is noted as TODO in the script
+Note: If you're using a non-Debian distribution, either install the equivalent packages using your distro’s package manager or install the tools manually.
 
-Script source: https://github.com/weirdball7/AutoDF/blob/main/script.sh
+🔒 Important Safety Note
+Memory dumps can contain private or sensitive data (passwords, keys, personal data). Always analyze memory images in a controlled, isolated environment, ideally offline or on a designated analysis host. Make a backup copy of the memory dump before allowing a script to move or modify it.
 
-## Quickstart / Usage
+🚀 Usage
+Copy or create a working directory and place the memory image in a safe place:
 
-1. Make script executable:
-   chmod +x script.sh
+The script will prompt for the memory dump path (absolute/relative).
+It will ask for an output project directory name (e.g., my_project).
+The script will move the specified memory file into the project directory (this is destructive — use a copy if you want to preserve the original).
+It checks for (and offers to install) missing dependencies via apt.
+Script workflow: After setup, the script will run per-tool analysis steps and save their results under OUT_DIR/OUT_DIR_NAME (e.g., OUT_DIR_NAME/BINARY_DUMP). When complete, REPORT.txt and a ZIP of the outputs will be created.
 
-2. Run the script as root (script checks this and will exit if not root):
-   sudo ./script.sh
+🧭 What each tool does
+strings (via binutils): extracts printable strings from the memory image. Creates STRINGS_DUMP with textual data.
+binwalk: scans for embedded files and filesystem structures; extracts any findings to BINWALK_DUMP.
+bulk-extractor: extracts email addresses, credit card numbers, URLs, and other artifacts into BULK_DUMP.
+foremost: carves common files (images, documents, etc.) out of the memory image into FOREMOST_DUMP.
+Volatility: memory forensics framework (script includes a helper wrapper to use the bundled Volatility binary). Outputs results into VOLATILITY_DUMP.
+figlet: used to print banners for readability (optional).
+🔁 Script function summary (what happens internally)
+CHECKROOT(): Validate script is being run as root. Exits with error otherwise.
+GETFILE(): Prompt user to enter memory dump path and output project directory. Moves the file into the output directory if confirmation received.
+RESETLAB(): Optionally reinitialize a project directory (cleans previous output and restores a lab environment from included sample resources).
+GETTOOLS(): Check installed packages, try to install missing ones using apt.
+VOLSETUP(): If a Volatility binary is present locally (e.g., Volatility_for_Linux/volatility_2.5.linux.standalone/volatility_2.5_linux_x86), copy/install it to VOLATILITY_DUMP or ensure it is available on PATH for use by RUNVOL().
+RUNSTRINGS(): Run strings on the memory file and place output in STRINGS_DUMP.
+RUNBINWALK(): Use binwalk to analyze and extract embedded files; outputs to BINWALK_DUMP.
+RUNBULK(): Run bulk_extractor to extract artifacts into BULK_DUMP.
+RUNFOREMOST(): Run foremost and store carved files in FOREMOST_DUMP.
+RUNVOL(): Run volatility commands to collect system/process information; store results in VOLATILITY_DUMP.
+ZIPOUTPUT(): Compress the per-tool output directories into a single .zip file for archival.
+📁 Expected Output Directory Structure
+After completion, the output directory will contain:
 
-3. When prompted:
-   - Provide the full path to the memory dump file you want analyzed (e.g. /home/user/dumps/memdump.raw).
-   - Provide a name for the output directory.
-   - Provide a full path where that output directory should be created.
+🧪 Example Run (copy-paste)
+📁 Expected Output Directory Structure
+After completion, the output directory will contain:
+Insufficient disk space: Memory analysis can produce large recoveries. Ensure sufficient space before running.
+Output not found: Check OUT_DIR_NAME in the working directory for logs and generated output directories.
+Network/privilege-specific analyses: Some Volatility plugins require symbol files or knowledge of the OS version. This script provides a convenience wrapper rather than comprehensive OS-specific analysis.
+🧾 Report generation details
+REPORT.txt summarizes:
+Memory file size, path, and timestamp.
+Which tools ran, basic result counts (e.g., number of carved files, strings hits, bulk-extractor artifacts).
+Location of detailed outputs (per-tool directories).
+This is created automatically after the pipeline completes.
+🛡️ Security & Ethical use
+This script is for research, training, or forensic use only.
+Do not run it against systems or memory images you do not own or have explicit permission to analyze.
+Always keep backups and work on copies of original memory images.
+✅ Contributing
+If you’d like to improve AutoDF:
 
-4. Results:
-   - The script moves the memory dump into the created output directory and runs a strings scan.
-   - A directory called STRINGS_DUMP will be created inside the output dir and will contain:
-     - strings-full.txt
-     - strings-username.txt
-     - strings-password.txt
-     - strings-address.txt
-     - strings-user.txt
-     - strings-IP.txt
-     - strings-connect.txt
-     - strings-network.txt
+Fork the repository.
+Create a branch for your feature/fix.
+Add tests or sample memory images (avoid using any real or sensitive images).
+Submit a PR with a clear description and steps to reproduce.
+📜 License
+This README does not force a specific license for your project — add your license file to the repo if you want to publicize one.
 
-5. To re-create the test environment (used by the script):
-   - The RESETLAB function expects a `memory_file.zip` at the output path and will:
-     - delete the output directory,
-     - unzip `memory_file.zip` back into the output path,
-     - display the directory listing.
-   - Be careful: RESETLAB will rm -rf the output directory.
-
-## Required / optional packages
-The script attempts to install the following (using apt) if missing:
-- binwalk
-- bulk-extractor
-- foremost
-- binutils (for strings)
-Additionally the script uses figlet and tput (for colored / ASCII-art output). On many systems figlet is not installed by default.
-
-Before running the script ensure you have:
-- sudo privileges (the script installs packages and expects root)
-- apt available (Debian/Ubuntu)
-- enough disk space for string outputs and carved files
-
-Install common dependencies manually if you prefer:
-sudo apt update
-sudo apt install -y binwalk bulk-extractor foremost binutils figlet unzip
-
-## Security & Safety notes
-- The script must be run as root. Running analysis scripts as root increases risk—follow your lab policies and use isolated VMs for forensic work.
-- The script moves the memory dump into the output directory. If you want to keep the original copy, make a safe copy first.
-- The script uses apt to install packages; network access and package trust are required.
-
-## Known limitations / TODOs
-- Volatility (or similar memory analysis frameworks) is not installed or integrated — the script has a TODO for adding Volatility installation and plugin runs.
-- The script uses interactive prompts; add a non-interactive mode or CLI flags (getopts) to integrate into pipelines.
-- Filename and path handling may break with spaces or tabs (some commands are not fully quoted).
-- The script calls sudo inside functions; better design is to require the user start the script with sudo and avoid nested sudo.
-- RESETLAB expects a file named `memory_file.zip`; make this configurable or detect available archives automatically.
-- Improve error handling (check return values from commands), add logging, and optionally archive results (tar/zip).
-- Add unit/integration tests and a CI pipeline.
-
-## Development & contribution
-- This project is a WIP. If you'd like to contribute:
-  - Open issues describing desired features (e.g., Volatility integration, non-interactive CLI).
-  - Propose PRs with small, focused changes (improve quoting, add CLI args, implement Volatility install).
-  - Keep changes tested in a disposable VM and avoid running unknown memory dumps on a host machine.
-
-## Example improvements you can make
-- Convert the script to support --input and --output CLI flags and add --non-interactive.
-- Add a safer mode that copies the memory dump instead of moving it.
-- Add configurable keyword list instead of hardcoded keyword greps.
-- Integrate Volatility and extract process/registry/web-credentials artifacts.
-- Make the tool OS-agnostic (support Fedora/RHEL by adding alternative package manager calls).
-
-## License
-No license file in the repository yet. Add a LICENSE (e.g. MIT) if you want to open-source this project.
-
-## Contact
-Maintainer: weirdball7 (GitHub)
-Open an issue in this repository for questions or improvements.
-
----
-
-Lightweight Bash wrapper to run quick memory-dump forensics (strings, binwalk, bulk-extractor, foremost, volatility helper). The script colorizes important terminal output and includes inline comments for clarity.
-
-## Prerequisites
-- Run as root (script enforces this in `CHECKROOT`).
-- Bash (tested on Ubuntu / WSL).
-- Tools the script checks/installs:
-  - binwalk
-  - bulk-extractor (checked as `bulk_extractor`)
-  - foremost
-  - binutils (for `strings`)
-  - figlet (optional, used for banners)
-  - unzip (used by `RESETLAB`)
-
-## How the script works (high level)
-1. `CHECKROOT` — exit if current user is not root.
-2. `GETFILE` — prompts for:
-   - full path to memory dump (`MEM_DUMP`)
-   - output directory name (`OUT_DIR_NAME`)
-   - output directory path (`OUT_DIR_PATH`)
-   Moves the memdump into: `$OUT_DIR_PATH/$OUT_DIR_NAME` and cds there.
-3. `GETTOOLS` → `VOLSETUP` — checks/installs tools and prepares volatility helper files, then proceeds to extraction functions.
-4. `RUNSTRINGS` — sets `HOME=$(pwd)`, creates `STRINGS_DUMP/` and runs multiple `strings` scans creating:
-   - `strings-full.txt`
-   - `strings-username.txt`
-   - `strings-password.txt`
-   - `strings-address.txt`
-   - `strings-user.txt`
-   - `strings-IP.txt`
-   - `strings-connect.txt`
-   - `strings-network.txt`
-   - `strings-exe.txt`
-   Files are written under `$HOME/STRINGS_DUMP` (where `HOME` is the script's current working directory).
-5. `RUNBINWALK` — creates `BINWALK_DUMP/`, runs `binwalk` and `binwalk -e` and saves scans to `$HOME/BINWALK_DUMP`.
-6. `RUNBULK` — runs `bulk_extractor -o BULK_DUMP <memfile>` (relative to the current working dir), then searches:
-   - `"$OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP"` for `.pcap` / `.pcapng`
-   - first hit is stored in `NETWORK_FILE`
-   - file size is captured into a variable using `FILE_LISTING=$(ls -l -- "$NETWORK_FILE" | awk '{print $5}')`
-7. `RUNFOREMOST` — runs `foremost -i $MEM_FILE -o FOREMOST_DUMP`.
-8. `RUNVOL` — runs the volatility helper `./vol` against `$MEM_FILE` and writes `imageinfo` to `VOLATILITY_DUMP`.
-9. `RESETLAB` — prompts to delete output dir and can re-unzip `memory_file.zip` for testing.
-
-## Output layout (example)
-Given OUT_DIR_PATH=/some/path and OUT_DIR_NAME=ProjectDump:
-- /some/path/ProjectDump/
-  - STRINGS_DUMP/
-    - strings-full.txt
-    - strings-username.txt
-    - ...
-  - BINWALK_DUMP/
-    - binwalk_scan.txt
-    - (extracted files)
-  - BULK_DUMP/
-    - packets.pcap (if found)
-    - bulk_extractor outputs
-  - FOREMOST_DUMP/
-  - VOLATILITY_DUMP/
-
-## Color convention (tput)
-- Red (1) = errors / destructive actions
-- Blue (4) = info / prompts
-- Green (2) = success / completion
-- Cyan (6) = details / listings
-- Yellow (3) = warnings
-
-## Usage
-1. Make script executable:
-   sudo chmod +x script.sh
-2. Run:
-   sudo ./script.sh
-3. Follow prompts:
-   - Full path to memdump (e.g. `/home/user/memdump.mem`)
-   - Output directory name (e.g. `ProjectDump`)
-   - Output directory path (e.g. `/home/user/forensics`)
-
-## Important notes & caveats (based on script behavior)
-- The script moves the supplied memdump into the chosen output folder and runs tools from there. `bulk_extractor` is invoked with a relative `-o BULK_DUMP`, so outputs appear under the working directory where the command runs.
-- `RUNSTRINGS` sets `HOME=$(pwd)` and writes string outputs to `$HOME/STRINGS_DUMP`. Expect `HOME` here to be the working dir, not the system user home.
-- `RUNBULK` finds network captures using `find "$OUT_DIR_PATH/$OUT_DIR_NAME/BULK_DUMP" ... -print -quit` and stores the first match in `NETWORK_FILE`.
-- File size for found network captures is captured using `ls -l -- "$NETWORK_FILE" | awk '{print $5}'` and printed as `File size`.
-- Many commands in the script rely on the current working directory being `$OUT_DIR_PATH/$OUT_DIR_NAME`. If you change working directories outside the script, outputs/paths may differ.
-- Variable assignment must not include `$` on the left side (use `VAR=value`).
-- Some commands in the script use unquoted variables (e.g. `$MEM_FILE` in a few places). Be careful with paths containing spaces.
-
-## Debug tips
-- Enable shell tracing:
-  set -x
-  sudo ./script.sh
-  set +x
-- Print relevant variables during run:
-  echo "OUT_DIR_PATH='$OUT_DIR_PATH' OUT_DIR_NAME='$OUT_DIR_NAME' MEM_DUMP='$MEM_DUMP'"
-
-## License / Disclaimer
-For lab / educational use only. Verify legal authority before analyzing memory images.
+Suggested: MIT License (create LICENSE file if needed).
+👋 Credits & Acknowledgements
+Volatility (Volatility Foundation) — used as the memory analysis engine.
+Bulk Extractor — artifact extraction.
+Binwalk — embedded file extraction.
+Foremost — carving utility.
+strings — string extraction (provided by binutils).
