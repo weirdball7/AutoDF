@@ -41,11 +41,10 @@ Prerequisites
 Quick start
 1. Make a safe copy of the memory image (recommended).
 2. Run the script as root:
-   sudo ./autodf.sh
+   sudo ./AutoDF.sh
 3. Follow prompts:
    - Enter the path to the memory dump.
    - Enter an output project directory name.
-   - Confirm whether to move the image into the project.
 4. Script behavior:
    - Checks/installs dependencies via apt (prompts before install).
    - Runs the configured tools and saves outputs under the project directory.
@@ -53,11 +52,10 @@ Quick start
 
 Example run (interactive)
 - Launch:
-  sudo ./autodf.sh
+  sudo ./AutoDF.sh
 - Prompts:
   - Enter memory dump path: /path/to/image.dd
   - Enter project directory name: my_project
-  - Move image into project? (y/n)
 
 What each tool produces
 - STRINGS_DUMP: printable strings from the image.
